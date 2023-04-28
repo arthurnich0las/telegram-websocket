@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebSocket Client</title>
+  <style>
+    #messages {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>WebSocket Client</h1>
+  <div id="messages"></div>
+  <script>
+    const messagesDiv = document.getElementById('messages');
+    
+    // Substitua o URL abaixo pelo URL gerado pelo ngrok
+    const socket = new WebSocket("wss://85f8-2804-29b8-511b-4d4f-00-102.ngrok-free.app");
+
+    socket.addEventListener('open', (event) => {
+      socket.send('Bom dia tropa');
+    });
+
+    socket.addEventListener('message', (event) => {
+      console.log('Mensagem recebida:', event.data);
+      const messageElement = document.createElement('p');
+      messageElement.textContent = event.data;
+      messagesDiv.appendChild(messageElement);
+    });
+  </script>
+</body>
+</html>
