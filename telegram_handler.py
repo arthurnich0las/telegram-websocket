@@ -1,17 +1,15 @@
 import asyncio
 from telethon import TelegramClient, events
 import websockets
+import json
 import logging
 
 logging.basicConfig(level=logging.INFO)
 
 api_id = 24189974
 api_hash = '9f92d41c87279a7d0ba64fc8cff6f584'
-phone_number = '+5582996124615'
 
 client = TelegramClient('session', api_id, api_hash)
-
-mensagens = []
 
 # Lista dos canais
 channel_ids = [
@@ -25,6 +23,9 @@ channel_ids = [
 
 connected_websockets = set()
 
+# Dicionário para armazenar a última mensagem de cada canal
+latest_messages = {}
+
 async def websocket_handler(websocket, path):
     connected_websockets.add(websocket)
     try:
@@ -33,27 +34,28 @@ async def websocket_handler(websocket, path):
     finally:
         connected_websockets.remove(websocket)
 
-
 async def handler(event):
     print('Handler iniciado')
-    global channel_ids
+    global channel_ids, latest_messages
     id = event.message.peer_id.channel_id
     id = f'-100{id}'
     print(id)
     if int(id) in channel_ids:
         mensagem = event.message.message
-        payload = f"Nova Mensagem: {mensagem} Id: {id}"
-        mensagens.append(payload)
-        print(payload)
+        # Atualizar a última mensagem para esse canal no dicionário latest_messages com o formato "id: mensagem"
+        latest_messages[id] = mensagem
+        # Converter o dicionário latest_messages em uma string JSON
+        latest_messages_formatted = {k: f"{v}" for k, v in latest_messages.items()}
+        latest_messages_json = json.dumps(latest_messages_formatted, ensure_ascii=False)
+        print(f'\n\n{latest_messages_json}')
         for websocket in connected_websockets:
             try:
-                await websocket.send(payload)
+                # Enviar a última mensagem de cada canal no dicionário latest_messages aos clientes
+                await websocket.send(latest_messages_json)
             except Exception as e:
                 print(f'Erro ao enviar payload aos clients: {e}')
             finally:
                 print(f'Payload enviado com sucesso!')
-
-
 
 async def main():
     global channel_ids
@@ -65,7 +67,6 @@ async def main():
     run = client.run_until_disconnected()
     # Run the websockets server
     await asyncio.gather(run, start_server)
-
 
 if __name__ == '__main__':
     asyncio.run(main())
