@@ -6,8 +6,8 @@ import logging
 
 logging.basicConfig(level=logging.INFO)
 
-api_id = 24189974
-api_hash = '9f92d41c87279a7d0ba64fc8cff6f584'
+api_id = api_id_from_your_app
+api_hash = "api_hash_from_your_app"
 
 client = TelegramClient('session', api_id, api_hash)
 
