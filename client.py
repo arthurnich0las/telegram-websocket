@@ -5,8 +5,8 @@ HOST = 'localhost'
 PORT = 5000
 
 async def main():
-    async with websockets.connect(f'wss://85f8-2804-29b8-511b-4d4f-00-102.ngrok-free.app') as websocket:
-        await websocket.send('Bom dia tropa')
+    async with websockets.connect(f'ws://localhost:5001') as websocket:
+        await websocket.send('')
 
         while True:
             data = await websocket.recv()
